@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="status">Disconnected</div>
+    <script>
+        const socket = io('http://localhost:3000');
+        
+        socket.on('connect', () => {
+            document.getElementById('status').textContent = 'Connected';
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('status').textContent = 'Disconnected';
+        });
+    </script>
+</body>
+</html> 

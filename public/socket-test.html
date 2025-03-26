@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Borrowing System - Socket Test</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .notification { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .notification.new { background-color: #e6f7ff; border: 1px solid #91d5ff; }
+        .notification.approved { background-color: #f6ffed; border: 1px solid #b7eb8f; }
+        .notification.returned { background-color: #fff7e6; border: 1px solid #ffd591; }
+        #notifications { max-height: 400px; overflow-y: auto; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Asset Borrowing System - Socket Test</h1>
+    
+    <div>
+        <button onclick="joinAdminRoom()">Join Admin Room</button>
+        <button onclick="joinUserRoom()">Join User Room</button>
+        <input type="number" id="userId" placeholder="User ID" value="1">
+    </div>
+    
+    <h2>Notifications</h2>
+    <div id="notifications"></div>
+    
+    <script>
+        const socket = io('http://localhost:3001');
+        const notifications = document.getElementById('notifications');
+        
+        socket.on('connect', () => {
+            addNotification('Connected to server', 'info');
+        });
+        
+        socket.on('disconnect', () => {
+            addNotification('Disconnected from server', 'info');
+        });
+        
+        socket.on('newBorrowRequest', (data) => {
+            addNotification(`New borrow request: ${data.user.name} wants to borrow ${data.item.name}`, 'new');
+        });
+        
+        socket.on('borrowRequestApproved', (data) => {
+            addNotification(`Your request to borrow ${data.item.name} has been approved`, 'approved');
+        });
+        
+        socket.on('itemReturned', (data) => {
+            addNotification(`${data.user.name} has returned ${data.item.name}`, 'returned');
+        });
+        
+        function joinAdminRoom() {
+            socket.emit('joinAdminRoom');
+            addNotification('Joined admin room', 'info');
+        }
+        
+        function joinUserRoom() {
+            const userId = document.getElementById('userId').value;
+            socket.emit('joinUserRoom', userId);
+            addNotification(`Joined user-${userId} room`, 'info');
+        }
+        
+        function addNotification(message, type) {
+            const notif = document.createElement('div');
+            notif.className = `notification ${type}`;
+            notif.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            notifications.prepend(notif);
+        }
+    </script>
+</body>
+</html> 
